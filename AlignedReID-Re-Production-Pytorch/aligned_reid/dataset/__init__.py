@@ -25,7 +25,7 @@ def create_dataset(
 
   if name == 'market1501':
     im_dir = ospeu('~/Dataset/market1501/images')
-    partition_file = ospeu('~/Dataset/market1501/partitions.pkl')
+    partition_file = ospeu('/content/CS460/AlignedReID-Re-Production-Pytorch/Dataset/market1501/partitions.pkl')
 
   elif name == 'cuhk03':
     im_type = ['detected', 'labeled'][0]
