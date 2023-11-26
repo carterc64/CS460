@@ -1,5 +1,5 @@
 import threading
-import Queue
+import queue
 import time
 
 
