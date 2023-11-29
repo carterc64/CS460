@@ -45,7 +45,7 @@ def re_ranking(q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value=0.3):
     original_dist = np.power(original_dist, 2).astype(np.float32)
     original_dist = np.transpose(1. * original_dist/np.max(original_dist,axis = 0))
     V = cp.zeros_like(original_dist).astype(cp.float32)
-    initial_rank = cp.argsort(original_dist).astype(cp.int32)
+    initial_rank = np.argsort(original_dist).astype(np.int32)
 
     query_num = q_g_dist.shape[0]
     gallery_num = q_g_dist.shape[0] + q_g_dist.shape[1]
@@ -72,10 +72,11 @@ def re_ranking(q_g_dist, q_q_dist, g_g_dist, k1=20, k2=6, lambda_value=0.3):
         V[i,k_reciprocal_expansion_index] = 1.*weight/np.sum(weight)
     original_dist = original_dist[:query_num,]
     if k2 != 1:
-        V_qe = np.zeros_like(V,dtype=np.float32)
+        V_qe = cp.zeros_like(V,dtype=cp.float32)
         for i in range(all_num):
-            V_qe[i,:] = np.mean(V[initial_rank[i,:k2],:],axis=0)
+            V_qe[i,:] = cp.mean(V[initial_rank[i,:k2],:],axis=0)
         V = V_qe
+        V = cp.asnumpy(V)
         del V_qe
     del initial_rank
     invIndex = []
