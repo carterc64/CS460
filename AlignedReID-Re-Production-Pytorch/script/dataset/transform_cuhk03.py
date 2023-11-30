@@ -11,7 +11,7 @@ from zipfile import ZipFile
 import os.path as osp
 import sys
 import h5py
-from scipy.misc import imsave
+import imageio
 from itertools import chain
 
 from aligned_reid.utils.utils import may_make_dir
@@ -33,7 +33,7 @@ def save_images(mat_file, save_dir, new_im_name_tmpl):
       im = deref(mat, ref)
       if im.size == 0 or im.ndim < 2: break
       fname = new_im_name_tmpl.format(pid, cam, i)
-      imsave(osp.join(im_dir, fname), im)
+      imageio.imwrite(osp.join(im_dir, fname), im)
 
   mat = h5py.File(mat_file, 'r')
   labeled_im_dir = osp.join(save_dir, 'labeled/images')
@@ -69,14 +69,14 @@ def transform(zip_file, train_test_partition_file, save_dir=None):
   """Save images and partition the train/val/test set.
   """
   print("Extracting zip file")
-  root = osp.dirname(osp.abspath(zip_file))
-  if save_dir is None:
-    save_dir = root
-  may_make_dir(save_dir)
-  with ZipFile(zip_file) as z:
-    z.extractall(path=save_dir)
+  # root = osp.dirname(osp.abspath(zip_file))
+  # if save_dir is None:
+  #   save_dir = root
+  # may_make_dir(save_dir)
+  # with ZipFile(zip_file) as z:
+  #   z.extractall(path=save_dir)
   print("Extracting zip file done")
-  mat_file = osp.join(save_dir, osp.basename(zip_file)[:-4], 'cuhk-03.mat')
+  mat_file = '/content/CS460/AlignedReID-Re-Production-Pytorch/Dataset/archive/cuhk03_release/cuhk-03.mat'
 
   save_images(mat_file, save_dir, new_im_name_tmpl)
 
@@ -137,7 +137,7 @@ if __name__ == '__main__':
   parser.add_argument(
     '--zip_file',
     type=str,
-    default='~/Dataset/cuhk03/cuhk03_release.zip')
+    default='')
   parser.add_argument(
     '--save_dir',
     type=str,
@@ -145,7 +145,7 @@ if __name__ == '__main__':
   parser.add_argument(
     '--train_test_partition_file',
     type=str,
-    default='~/Dataset/cuhk03/re_ranking_train_test_split.pkl')
+    default='/content/CS460/AlignedReID-Re-Production-Pytorch/Dataset/cuhk03/re_ranking_train_test_split.pkl')
   args = parser.parse_args()
   zip_file = osp.abspath(osp.expanduser(args.zip_file))
   train_test_partition_file = osp.abspath(osp.expanduser(
