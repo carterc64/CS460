@@ -29,7 +29,6 @@ def create_dataset(
     partition_file = ospeu('./Dataset/market1501/partitions.pkl')
 
   elif name == 'cuhk03':
-    im_type = ['detected', 'labeled']
     im_dir = ospeu(ospj('./Dataset/cuhk03', 'all', 'images'))
     combined_partition_data = []
     for im_type in ['detected', 'labeled']:
@@ -37,9 +36,10 @@ def create_dataset(
       with open(partition_file, 'rb') as file:
         partition_data = pickle.load(file)
         combined_partition_data.extend(partition_data)
-        combined_partition_file = './Dataset/cuhk03/all/partitions.pkl'
-        with open(combined_partition_file, 'wb') as file:
-          pickle.dump(combined_partition_data, file)
+
+    combined_partition_file = './Dataset/cuhk03/all/partitions.pkl'
+    with open(combined_partition_file, 'wb') as file:
+      pickle.dump(combined_partition_data, file)
     partition_file = ospeu('./Dataset/cuhk03/all/partitions.pkl')
 
   elif name == 'duke':
