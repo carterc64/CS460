@@ -76,7 +76,7 @@ def transform(zip_file, train_test_partition_file, save_dir=None):
   # with ZipFile(zip_file) as z:
   #   z.extractall(path=save_dir)
   print("Extracting zip file done")
-  mat_file = '/content/CS460/AlignedReID-Re-Production-Pytorch/Dataset/archive/cuhk03_release/cuhk-03.mat'
+  mat_file = "C:/CS460/Repository/CS460/AlignedReID-Re-Production-Pytorch/Dataset/cuhk03/archive/cuhk03_release/cuhk-03.mat"
 
   save_images(mat_file, save_dir, new_im_name_tmpl)
 
@@ -85,7 +85,7 @@ def transform(zip_file, train_test_partition_file, save_dir=None):
   else:
     raise RuntimeError('Train/test partition file should be provided.')
 
-  for im_type in ['detected', 'labeled']:
+  for im_type in ['detected', 'labeled', 'all']:
     trainval_im_names = train_test_partition[im_type]['train_im_names']
     trainval_ids = list(set([parse_im_name(n, 'id')
                              for n in trainval_im_names]))
@@ -137,7 +137,7 @@ if __name__ == '__main__':
   parser.add_argument(
     '--zip_file',
     type=str,
-    default='')
+    default='~/Dataset/cuhk03/cuhk03_release.zip')
   parser.add_argument(
     '--save_dir',
     type=str,
@@ -145,7 +145,7 @@ if __name__ == '__main__':
   parser.add_argument(
     '--train_test_partition_file',
     type=str,
-    default='/content/CS460/AlignedReID-Re-Production-Pytorch/Dataset/cuhk03/re_ranking_train_test_split.pkl')
+    default='~/Dataset/cuhk03/re_ranking_train_test_split.pkl')
   args = parser.parse_args()
   zip_file = osp.abspath(osp.expanduser(args.zip_file))
   train_test_partition_file = osp.abspath(osp.expanduser(
