@@ -5,7 +5,7 @@ import threading
 import numpy as np
 
 import tensorflow as tf
-
+import tensorflow.contrib.slim as slim
 
 
 def run_in_batches(f, data_dict, out, batch_size):
@@ -282,7 +282,7 @@ class ThreadSafeIterator(object):
 class QueuedTrainer(object):
     """
     This class implements code to train and evaluate TensorFlow models based on
-    TensorFlow-tf. Image loading and preprocessing is de-coupled from the
+    TensorFlow-Slim. Image loading and preprocessing is de-coupled from the
     training steps using a tf.FIFOQueue.
 
     Parameters
@@ -346,7 +346,7 @@ class QueuedTrainer(object):
         self._batch_size = batch_size
         return self._queue.dequeue_many(batch_size)
 
-    def run(self, feed_generator, train_op, log_dir="/tmp/tf_trainer/",
+    def run(self, feed_generator, train_op, log_dir="/tmp/slim_trainer/",
             restore_path=None, variables_to_restore=None, run_id=None,
             max_checkpoints_to_keep=0, **kwargs):
         """ Run training.
@@ -358,11 +358,11 @@ class QueuedTrainer(object):
             return a one-to-one correspondence with the `enqueue_vars` passed
             to the constructor of this class.
         train_op : tf.Tensor
-            The training operation created with `tf.learning.create_train_op`.
+            The training operation created with `slim.learning.create_train_op`.
         log_dir : Optional[str]
             Path to TensorFlow log directory. This value is used in conjunction
             with `run_id` to generate the checkpoint and summary directory;
-            defaults to '/tmp/tf_trainer'.
+            defaults to '/tmp/slim_trainer'.
         restore_path : Optional[str]
             An optional checkpoint path. If not None, resumes training from the
             given checkpoint.
@@ -379,14 +379,14 @@ class QueuedTrainer(object):
             Keep only the `max_checkpoints_to_keep` newest checkpoints. If 0,
             keep all checkpoints.
         kwargs:
-            Additional named arguments passed on to tf.tf.learning.train,
+            Additional named arguments passed on to tf.slim.learning.train,
             e.g., `number_of_steps=100` to run 100 iterations of training.
 
         """
         if restore_path is not None:
             if variables_to_restore is None:
-                variables_to_restore = tf.get_variables_to_restore()
-            init_assign_op, init_feed_dict = tf.assign_from_checkpoint(
+                variables_to_restore = slim.get_variables_to_restore()
+            init_assign_op, init_feed_dict = slim.assign_from_checkpoint(
                 restore_path, variables_to_restore)
             self._init_fns.append(lambda sess: sess.run(
                 init_assign_op, init_feed_dict))
@@ -403,11 +403,11 @@ class QueuedTrainer(object):
 
         saver = tf.train.Saver(max_to_keep=max_checkpoints_to_keep)
         try:
-            tf.learning.train(
+            slim.learning.train(
                 train_op, log_dir, self._train_step_fn, saver=saver,
                 **kwargs)
         except UnboundLocalError:
-            # NOTE(nwojke): Due to a bug in tf, a local variable 'total_loss'
+            # NOTE(nwojke): Due to a bug in slim, a local variable 'total_loss'
             # is referenced when an exception is raised during training. We
             # catch the exception here because it occurs whenever we close the
             # queue with self._stop_all_threads().
@@ -455,7 +455,7 @@ class QueuedTrainer(object):
             Summary operation; defaults to `tf.summary.merge_all()`.
         variables_to_restore : Optional[List[tf.Tensor]]
             List of variables to restore; defaults to
-            `tf.get_variables_to_restore()`.
+            `slim.get_variables_to_restore()`.
         eval_interval_secs : Optional[int]
             Poll the `checkpoint_dir` every `eval_interval_secs` seconds for
             new checkpoints.
@@ -488,7 +488,7 @@ class QueuedTrainer(object):
         global_step = tf.train.get_or_create_global_step()
 
         if variables_to_restore is None:
-            variables_to_restore = tf.get_variables_to_restore()
+            variables_to_restore = slim.get_variables_to_restore()
         saver = tf.train.Saver(variables_to_restore)
         summary_writer = tf.summary.FileWriter(log_dir)
         sv = tf.train.Supervisor(
@@ -501,7 +501,7 @@ class QueuedTrainer(object):
 
         final_op_value = None
         num_evaluations = 0
-        for checkpoint_path in tf.evaluation.checkpoints_iterator(
+        for checkpoint_path in slim.evaluation.checkpoints_iterator(
                 checkpoint_dir, eval_interval_secs):
             with sv.managed_session(start_standard_services=False) as session:
                 sv.saver.restore(session, checkpoint_path)
@@ -547,7 +547,7 @@ class QueuedTrainer(object):
             for fn in self._init_fns:
                 fn(session)
             self._start_enqueue(session)
-        total_loss, should_stop = tf.learning.train_step(
+        total_loss, should_stop = slim.learning.train_step(
             session, train_op, global_step, train_step_kwargs)
         if should_stop or self._coordinator.should_stop():
             self._stop_all_threads(session)

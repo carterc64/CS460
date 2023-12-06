@@ -1,12 +1,12 @@
 # vim: expandtab:ts=4:sw=4
 import tensorflow as tf
-
+from tensorflow.contrib import slim
 
 
 def _batch_norm_fn(x, scope=None):
     if scope is None:
         scope = tf.get_variable_scope().name + "/bn"
-    return tf.batch_norm(x, scope=scope)
+    return slim.batch_norm(x, scope=scope)
 
 
 def create_link(
@@ -29,7 +29,7 @@ def create_link(
     if incoming_dim != outgoing_dim:
         assert outgoing_dim == 2 * incoming_dim, \
             "%d != %d" % (outgoing_dim, 2 * incoming)
-        projection = tf.conv2d(
+        projection = slim.conv2d(
             incoming, outgoing_dim, 1, 2, padding="SAME", activation_fn=None,
             scope=scope+"/projection", weights_initializer=weights_initializer,
             biases_initializer=None, weights_regularizer=regularizer)
@@ -50,7 +50,7 @@ def create_inner_block(
         n *= 2
         stride = 2
 
-    incoming = tf.conv2d(
+    incoming = slim.conv2d(
         incoming, n, [3, 3], stride, activation_fn=nonlinearity, padding="SAME",
         normalizer_fn=_batch_norm_fn, weights_initializer=weights_initializer,
         biases_initializer=bias_initializer, weights_regularizer=regularizer,
@@ -58,9 +58,9 @@ def create_inner_block(
     if summarize_activations:
         tf.summary.histogram(incoming.name + "/activations", incoming)
 
-    incoming = tf.dropout(incoming, keep_prob=0.6)
+    incoming = slim.dropout(incoming, keep_prob=0.6)
 
-    incoming = tf.conv2d(
+    incoming = slim.conv2d(
         incoming, n, [3, 3], 1, activation_fn=None, padding="SAME",
         normalizer_fn=None, weights_initializer=weights_initializer,
         biases_initializer=bias_initializer, weights_regularizer=regularizer,
