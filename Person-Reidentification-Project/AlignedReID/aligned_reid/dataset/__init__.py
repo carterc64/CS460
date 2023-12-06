@@ -29,18 +29,21 @@ def create_dataset(
     partition_file = ospeu('./Dataset/market1501/partitions.pkl')
 
   elif name == 'cuhk03':
-    im_dir = ospeu(ospj('./Dataset/cuhk03', 'all', 'images'))
-    combined_partition_data = []
-    for im_type in ['detected', 'labeled']:
-      partition_file = ospeu(ospj('./Dataset/cuhk03', im_type, 'partitions.pkl'))
-      with open(partition_file, 'rb') as file:
-        partition_data = pickle.load(file)
-        combined_partition_data.extend(partition_data)
+    # im_dir = ospeu(ospj('./Dataset/cuhk03', 'all', 'images'))
+    # combined_partition_data = []
+    # for im_type in ['detected', 'labeled']:
+    #   partition_file = ospeu(ospj('./Dataset/cuhk03', im_type, 'partitions.pkl'))
+    #   with open(partition_file, 'rb') as file:
+    #     partition_data = pickle.load(file)
+    #     combined_partition_data.extend(partition_data)
+    # combined_partition_file = './Dataset/cuhk03/all/partitions.pkl'
+    # with open(combined_partition_file, 'wb') as file:
+    #   pickle.dump(combined_partition_data, file)
+    # partition_file = ospeu('./Dataset/cuhk03/all/partitions.pkl')
 
-    combined_partition_file = './Dataset/cuhk03/all/partitions.pkl'
-    with open(combined_partition_file, 'wb') as file:
-      pickle.dump(combined_partition_data, file)
-    partition_file = ospeu('./Dataset/cuhk03/all/partitions.pkl')
+    im_type = ['detected', 'labeled'][0]
+    im_dir = ospeu(ospj('~/Dataset/cuhk03', im_type, 'images'))
+    partition_file = ospeu(ospj('~/Dataset/cuhk03', im_type, 'partitions.pkl'))
 
   elif name == 'duke':
     im_dir = ospeu('~/Dataset/duke/images')
