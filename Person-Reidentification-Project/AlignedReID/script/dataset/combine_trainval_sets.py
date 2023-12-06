@@ -57,13 +57,11 @@ def combine_trainval_sets(
   new_start_id = 0
   for im_dir, partition_file in zip(im_dirs, partition_files):
     partitions = load_pickle(partition_file)
-    for n in range(len(partitions['trainval_im_names'])):
-      if partition_file == partition_files[1]:
-        z = partitions['trainval_im_names'][n].decode('utf-8') 
-        partitions['trainval_im_names'][n] = z
-        print(partitions['trainval_in_names'][n])
-        print(type(partitions['trainval_im_names'][n]))
-    im_paths = [ospj(im_dir, n) for n in partitions['trainval_im_names']]
+
+    if partition_file == partition_files[1]:
+      im_paths = [ospj(im_dir, n.decode('utf-8')) for n in partitions['trainval_im_names']]
+    else:
+      im_paths = [ospj(im_dir, n) for n in partitions['trainval_im_names']]
     im_paths.sort()
     new_im_names_, id_mapping = move_ims(
       im_paths, new_im_dir, parse_im_name, new_im_name_tmpl, new_start_id)
