@@ -1,3 +1,6 @@
 [submodule "cosine_metric_learning"]
 	path = cosine_metric_learning
 	url = C:\\CS460\\Repository\\CS460\\Person-Reidentification-Project\\cosine_metric_learning
+[submodule "market1501"]
+	path = market1501
+	url = https://github.com/sybernix/market1501.git
