@@ -11,6 +11,7 @@ ospap = osp.abspath
 
 from collections import defaultdict
 import shutil
+import numpy as np
 
 from aligned_reid.utils.utils import may_make_dir
 from aligned_reid.utils.utils import save_pickle
@@ -56,6 +57,12 @@ def combine_trainval_sets(
   new_start_id = 0
   for im_dir, partition_file in zip(im_dirs, partition_files):
     partitions = load_pickle(partition_file)
+    for n in range(len(partitions['trainval_im_names'])):
+      if partition_file == partition_files[1]:
+        z = partitions['trainval_im_names'][n].decode('utf-8') 
+        partitions['trainval_im_names'][n] = z
+        print(partitions['trainval_in_names'][n])
+        print(type(partitions['trainval_im_names'][n]))
     im_paths = [ospj(im_dir, n) for n in partitions['trainval_im_names']]
     im_paths.sort()
     new_im_names_, id_mapping = move_ims(
@@ -105,15 +112,15 @@ if __name__ == '__main__':
     default=ospeu('./Dataset/cuhk03/detected/partitions.pkl'.format(cuhk03_im_type))
   )
 
-  parser.add_argument(
-    '--duke_im_dir',
-    type=str,
-    default=ospeu('~/Dataset/duke/images'))
-  parser.add_argument(
-    '--duke_partition_file',
-    type=str,
-    default=ospeu('~/Dataset/duke/partitions.pkl')
-  )
+  # parser.add_argument(
+  #   '--duke_im_dir',
+  #   type=str,
+  #   default=ospeu('~/Dataset/duke/images'))
+  # parser.add_argument(
+  #   '--duke_partition_file',
+  #   type=str,
+  #   default=ospeu('~/Dataset/duke/partitions.pkl')
+  # )
 
   parser.add_argument(
     '--save_dir',
