@@ -1,6 +1,6 @@
 # vim: expandtab:ts=4:sw=4
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
+
 
 
 def pdist(a, b=None):
@@ -132,8 +132,8 @@ def streaming_mean_cmc_at_k(probe_x, probe_y, gallery_x, gallery_y, k,
     """Compute cumulated matching characteristics (CMC) at level `k` over
     a stream of data (i.e., multiple batches).
 
-    The function is compatible with TensorFlow-Slim's streaming metrics
-    interface, e.g., `slim.metrics.aggregate_metric_map`.
+    The function is compatible with TensorFlow-tf's streaming metrics
+    interface, e.g., `tf.metrics.aggregate_metric_map`.
 
     Parameters
     ----------
@@ -160,7 +160,7 @@ def streaming_mean_cmc_at_k(probe_x, probe_y, gallery_x, gallery_y, k,
     """
     recognition_rate = recognition_rate_at_k(
         probe_x, probe_y, gallery_x, gallery_y, k, measure)
-    return slim.metrics.streaming_mean(recognition_rate)
+    return tf.metrics.streaming_mean(recognition_rate)
 
 
 def streaming_mean_averge_precision(probe_x, probe_y, gallery_x, gallery_y,
@@ -218,4 +218,4 @@ def streaming_mean_averge_precision(probe_x, probe_y, gallery_x, gallery_y,
         tf.reduce_sum(precision_at_k * relevant_at_k, reduction_indices=[1]) /
         tf.cast(tf.squeeze(num_relevant), tf.float32))
 
-    return slim.metrics.streaming_mean(average_precision)
+    return tf.metrics.streaming_mean(average_precision)

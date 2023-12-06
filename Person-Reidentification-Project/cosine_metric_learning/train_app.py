@@ -2,7 +2,7 @@
 import argparse
 import numpy as np
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
+
 
 from datasets import util
 import queued_trainer
@@ -190,7 +190,7 @@ def train_loop(preprocess_fn, network_factory, train_x, train_y,
     feed_generator = queued_trainer.random_sample_identities_forever(
         batch_size, num_images_per_id, train_x, train_y)
 
-    variables_to_restore = slim.get_variables_to_restore(
+    variables_to_restore = tf.get_variables_to_restore(
         exclude=exclude_from_restore)
     trainer.run(
         feed_generator, train_op, log_dir, restore_path=restore_path,
@@ -280,7 +280,7 @@ def create_trainer(preprocess_fn, network_factory, read_from_file, image_shape,
     global_step = tf.train.get_or_create_global_step()
 
     loss_var = tf.losses.get_total_loss()
-    train_op = slim.learning.create_train_op(
+    train_op = tf.learning.create_train_op(
         loss_var, tf.train.AdamOptimizer(learning_rate=learning_rate),
         global_step, summarize_gradients=False,
         variables_to_train=variables_to_train)
@@ -431,7 +431,7 @@ def eval_loop(preprocess_fn, network_factory, data_x, data_y, camera_indices,
             probe_x_var, probe_y_var, gallery_x_var, gallery_y_var,
             k=k, measure=distance_measure)
 
-    names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
+    names_to_values, names_to_updates = tf.metrics.aggregate_metric_map({
         "Precision@%d" % k: cmc_metric_at_k(k) for k in [1, 5, 10, 20]})
     for metric_name, metric_value in names_to_values.items():
         tf.summary.scalar(metric_name, metric_value)
@@ -471,10 +471,10 @@ def finalize(preprocess_fn, network_factory, checkpoint_path, image_shape,
             input_var, back_prop=False, dtype=tf.float32)
         network_factory(image_var)
 
-        loader = tf.train.Saver(slim.get_variables_to_restore())
+        loader = tf.train.Saver(tf.get_variables_to_restore())
         loader.restore(session, checkpoint_path)
 
-        saver = tf.train.Saver(slim.get_model_variables())
+        saver = tf.train.Saver(tf.get_model_variables())
         saver.save(session, output_filename, global_step=None)
 
 
@@ -515,7 +515,7 @@ def freeze(preprocess_fn, network_factory, checkpoint_path, image_shape,
         features, _ = network_factory(image_var)
         features = tf.identity(features, name=feature_name)
 
-        saver = tf.train.Saver(slim.get_variables_to_restore())
+        saver = tf.train.Saver(tf.get_variables_to_restore())
         saver.restore(session, checkpoint_path)
 
         output_graph_def = tf.graph_util.convert_variables_to_constants(
@@ -595,8 +595,8 @@ def _create_encoder(preprocess_fn, network_factory, image_shape, batch_size=32,
         session = tf.Session()
     if checkpoint_path is not None:
         tf.train.get_or_create_global_step()
-        init_assign_op, init_feed_dict = slim.assign_from_checkpoint(
-            checkpoint_path, slim.get_model_variables())
+        init_assign_op, init_feed_dict = tf.assign_from_checkpoint(
+            checkpoint_path, tf.get_model_variables())
         session.run(init_assign_op, feed_dict=init_feed_dict)
 
     def encoder(data_x):
@@ -611,11 +611,11 @@ def _create_encoder(preprocess_fn, network_factory, image_shape, batch_size=32,
 
 def _create_softmax_loss(feature_var, logit_var, label_var):
     del feature_var  # Unused variable
-    cross_entropy_var = slim.losses.sparse_softmax_cross_entropy(
+    cross_entropy_var = tf.losses.sparse_softmax_cross_entropy(
         logit_var, tf.cast(label_var, tf.int64))
     tf.summary.scalar("cross_entropy_loss", cross_entropy_var)
 
-    accuracy_var = slim.metrics.accuracy(
+    accuracy_var = tf.metrics.accuracy(
         tf.cast(tf.argmax(logit_var, 1), tf.int64), label_var)
     tf.summary.scalar("classification accuracy", accuracy_var)
 
@@ -625,7 +625,7 @@ def _create_magnet_loss(feature_var, logit_var, label_var, monitor_mode=False):
     magnet_loss, _, _ = losses.magnet_loss(feature_var, label_var)
     tf.summary.scalar("magnet_loss", magnet_loss)
     if not monitor_mode:
-        slim.losses.add_loss(magnet_loss)
+        tf.losses.add_loss(magnet_loss)
 
 
 def _create_triplet_loss(feature_var, logit_var, label_var, monitor_mode=False):
@@ -633,7 +633,7 @@ def _create_triplet_loss(feature_var, logit_var, label_var, monitor_mode=False):
     triplet_loss = losses.softmargin_triplet_loss(feature_var, label_var)
     tf.summary.scalar("triplet_loss", triplet_loss)
     if not monitor_mode:
-        slim.losses.add_loss(triplet_loss)
+        tf.losses.add_loss(triplet_loss)
 
 
 def _create_loss(
