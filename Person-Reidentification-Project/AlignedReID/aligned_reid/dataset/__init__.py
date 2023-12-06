@@ -42,8 +42,8 @@ def create_dataset(
     # partition_file = ospeu('./Dataset/cuhk03/all/partitions.pkl')
 
     im_type = ['detected', 'labeled'][0]
-    im_dir = ospeu(ospj('~/Dataset/cuhk03', im_type, 'images'))
-    partition_file = ospeu(ospj('~/Dataset/cuhk03', im_type, 'partitions.pkl'))
+    im_dir = ospeu(ospj('./Dataset/cuhk03', im_type, 'images'))
+    partition_file = ospeu(ospj('./Dataset/cuhk03', im_type, 'partitions.pkl'))
 
   elif name == 'duke':
     im_dir = ospeu('~/Dataset/duke/images')
