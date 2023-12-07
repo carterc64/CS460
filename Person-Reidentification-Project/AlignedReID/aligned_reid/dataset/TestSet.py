@@ -55,7 +55,10 @@ class TestSet(Dataset):
 
   def get_sample(self, ptr):
     im_name = self.im_names[ptr]
-    im_path = osp.join(self.im_dir, im_name)
+    if (isinstance(im_name, str)):
+      im_path = osp.join(self.im_dir, im_name)
+    else:
+      im_path = osp.join(self.im_dir, im_name.decode('utf-8'))
     im = np.asarray(Image.open(im_path))
     im, _ = self.pre_process_im(im)
     id = parse_im_name(self.im_names[ptr], 'id')
